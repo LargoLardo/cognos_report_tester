@@ -20,15 +20,12 @@ def main():
             contextPresent = True
             page = context.new_page()
         except FileNotFoundError:
-            print("need to make new rwioqjriowjqroijqoirjqoirjqorwjqirjqorjqoirjqorjqojrwqojrq")
             page = browser.new_page()
             
         page.goto(COGNOS_BASE, wait_until="networkidle")
-        
         page.get_by_role("button", name="Continue").click()
         
         expect(page).to_have_title("Content")
-        print("titled")
 
         if not contextPresent:
             context = browser.new_context()
