@@ -2,6 +2,7 @@ import requests
 import urllib3
 import os
 import time
+from async_manual_validator import start_async_loop, loop, queue
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -104,6 +105,9 @@ def run(report_id: str, item):
         elif status_code == 408:
             logs.write('(Timeout Exception)')
         logs.write('\n')
+
+    loop.call_soon_threadsafe(queue.put_nowait, report)
+
     return status_code
 
 def action_by_type(new_extension: str, item):
@@ -121,6 +125,7 @@ def action_by_type(new_extension: str, item):
 
 def nav_reports(extension: str):
     res = content(extension)
+    
     res = res.json()
     try:
         for link in res['links']:
