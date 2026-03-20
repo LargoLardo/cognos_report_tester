@@ -2,15 +2,13 @@ import os
 import sys
 import time
 import threading
-from async_manual_validator import queue, loop, start_async_loop
+from async_manual_validator import queue, start_manual_validator
 from playwright.sync_api import sync_playwright, expect
 from dotenv import find_dotenv, load_dotenv, set_key
 from async_rest import *
 
 dotenv_path = find_dotenv()
 load_dotenv(override=True)
-loop = None
-queue = None
 
 # Consider using requests.Session(), persistent headers across calls with session.headers.update().
 
@@ -85,12 +83,12 @@ print(res.status_code)
 print("Starting report verification process at", time.ctime())
 start_time = time.time()
 
-t = threading.Thread(target=start_async_loop, daemon=True)
-t.start()
+start_manual_validator()
 
-nav_reports("/iB5D49E1E01F14D08A3D9FC7E2E7EA460/items")
+nav_reports("/i70D61B7D0D5E4A3DB8A20CF9A60E6196/items")
 
-loop.call_soon_threadsafe(queue.put_nowait, None)
+print("dwkapdoawpd")
+queue.put(None)
 
 print("Finished at", time.ctime())
 print(time.time() - start_time, "seconds elapsed")

@@ -99,7 +99,10 @@ def run(report_id: str, item):
     with open('run_logs', 'a', encoding='utf-8') as logs:
         logs.write(f"{status_code} ")
         if status_code != 200 and status_code != 408:
-            text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
+            try:
+                text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
+            except:
+                text = res.text
             logs.write(f"({text})")
         elif status_code == 408:
             logs.write('(Timeout Exception)')

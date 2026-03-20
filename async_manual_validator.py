@@ -1,49 +1,49 @@
-from typing import List, Tuple
 from playwright.sync_api import Page
 import csv
 import os
-import asyncio
-import threading
 from dotenv import load_dotenv
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 from rest import status_codes
 import time
+import threading
+from queue import Queue
 
 load_dotenv(override=True)
 
 AUTH_FILE = Path("cognos_auth_state.json")
 COGNOS_BASE = os.getenv("COGNOS_BASE")
-queue = None
-loop = None
+
+queue = Queue()
  
 def get_context(page):
     """Return VA FrameLocator (prod)"""
     return page.frame_locator('iframe')
 
-def start_async_loop():
-    global loop, queue
-
+def start_manual_validator():
+    """Starts sync playwright and worker thread."""
     out_path = "report_checks.csv"
-
-    start = time.perf_counter()
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         context = browser.new_context(storage_state=str(AUTH_FILE))
         page = context.new_page()
-        # Result file header (optional)
+
+        # Prepare CSV
         with open(out_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["Name", "Status", "URL"])
             writer.writeheader()
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        queue = asyncio.Queue()
-        loop.create_task(async_check_reports_from_file(page, out_path))
-        loop.run_forever()
-    total = time.perf_counter() - start
-    print(f"Total runtime: {total:.2f} seconds")
+
+        print("here")
+
+        # Start worker thread
+        worker = threading.Thread(target=manual_check, args=(page, out_path), daemon=True)
+        worker.start() 
+
+        print("got here")
+
+        return
+
  
-# 2) Scan the entire page of text for incorrect keywords (simple and straightforward method)
 def page_has_error(page: Page) -> bool:
     ERROR_KEYWORDS = [
         "an error has occurred",
@@ -71,18 +71,20 @@ def page_has_error(page: Page) -> bool:
                     return True
     return False
  
-# 3) Open each URL one by one and check.
-async def async_check_reports_from_file(page: Page, out_path: str = "report_checks.csv"):
+def manual_check(page: Page, out_path: str = "report_checks.csv"):
     global queue
     count = 1
+    print("boomalicious")
     while True:
-        item = await queue.get()
+        print("boomtjing")
+        item = queue.get(block=True)
         if item is None:
             break
-        name = item.name
-        url = f"{COGNOS_BASE.removeSuffix("?perspective=home")}?objRef={item.id}"
+        id = item.id
+        print("boom")
+        url = f"{COGNOS_BASE.removesuffix("?perspective=home")}?objRef={item.id}"
 
-        print(f"[{count}] Opening: {name} -> {url}")
+        print(f"[{count}] Opening: {id} -> {url}")
 
         # Open the page (using domcontentloaded is faster; for better stability, you can change it to 'networkidle').
         page.goto(url, wait_until="domcontentloaded", timeout=200000)
@@ -97,7 +99,7 @@ async def async_check_reports_from_file(page: Page, out_path: str = "report_chec
         with open(out_path, "a", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["Name", "Status", "URL"])
             row = {
-                "Name": name,
+                "ID": id,
                 "Status": status,
                 "URL": url,
             }

@@ -2,7 +2,7 @@ import requests
 import urllib3
 import os
 import time
-from async_manual_validator import start_async_loop, loop, queue
+from async_manual_validator import queue
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -100,13 +100,16 @@ def run(report_id: str, item):
     with open('run_logs', 'a', encoding='utf-8') as logs:
         logs.write(f"{status_code} ")
         if status_code != 200 and status_code != 408:
-            text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
-            logs.write(f"({text})")
+            try:
+                text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
+                logs.write(f"({text})")
+            except IndexError:
+                logs.write(f"{res.text}")
         elif status_code == 408:
             logs.write('(Timeout Exception)')
         logs.write('\n')
 
-    loop.call_soon_threadsafe(queue.put_nowait, report)
+    queue.put(report)
 
     return status_code
 
