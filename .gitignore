@@ -6,5 +6,8 @@ cognos_auth_state.json
 status_codes
 run_logs
 
-manual
 sidelined
+manual
+logs
+
+report_checks.csv

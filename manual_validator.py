@@ -59,14 +59,20 @@ async def check_reports(page: Page, out_path: str = "report_checks.csv", ids: Li
     for idx, id in enumerate(ids, 1):
         print(f"[{idx}/{len(ids)}] Opening: {id}")
         url = f"{COGNOS_BASE.removesuffix("?perspective=home")}?objRef={id}"
+        # start_time = time.time()
         # Open the page (using domcontentloaded is faster; for better stability, you can change it to 'networkidle').
         await page.goto(url, wait_until="domcontentloaded", timeout=200000)
+        # print(time.time() - start_time, " domcontent")
+        # start_time = time.time()
         # Allow some rendering time (many reports are rendered by the front end).
         await page.wait_for_load_state("networkidle", timeout=200000)
- 
+        # print(time.time() - start_time, "network idle")
+        
+        # start_time = time.time()
         has_err = await page_has_error(page)
+        # print(time.time() - start_time, "error checking")
+
         status = "ERROR" if has_err else "OK"
-        print(f"  -> {status}")
  
         # Append write results
         with open(out_path, "a", newline="", encoding="utf-8") as f:
@@ -79,24 +85,32 @@ async def check_reports(page: Page, out_path: str = "report_checks.csv", ids: Li
  
     print(f"Done. Results saved to: {out_path}")
 
+async def worker(worker_id, browser):
+    context = await browser.new_context()
+    context =  await browser.new_context(storage_state=str(AUTH_FILE))
+    page = await context.new_page()
+    ids = []
+    names = []
+    with open(f"logs/run_logs_{worker_id}", "r") as f:
+        for line in f:
+            linearr = line.split("|")
+            names.append(linearr[0].strip())
+            ids.append(linearr[1].strip())
+    await check_reports(page, "report_checks.csv", ids)
+    await context.close()
 
- 
 async def main():
     # …This is the logic for your login, context creation, and page setup…
     # page = context.new_page()
     start = time.perf_counter()
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        context =  await browser.new_context(storage_state=str(AUTH_FILE))
-        page = await context.new_page()
-        ids = []
-        names = []
-        with open("run_logs", "r") as f:
-            for line in f:
-                linearr = line.split("|")
-                names.append(linearr[0].strip())
-                ids.append(linearr[1].strip())
-        await check_reports(page, "report_checks.csv", ids)
+        browser = await p.chromium.launch()
+        tasks = [
+            worker(i, browser)
+            for i in range(10)
+        ]
+        await asyncio.gather(*tasks)
+        await browser.close()
     total = time.perf_counter() - start
     print(f"Total runtime: {total:.2f} seconds")
  

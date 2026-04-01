@@ -7,6 +7,7 @@ from rest import *
 
 dotenv_path = find_dotenv()
 load_dotenv(override=True)
+AUTH_FILE = 'cognos_auth_state.json'
 
 # Consider using requests.Session(), persistent headers across calls with session.headers.update().
 
@@ -37,6 +38,7 @@ if res.status_code != 200:
             for cookie in cookies:
                 if cookie['name'] == 'cam_passport':
                     passport = cookie['value']
+            context.storage_state(path=str(AUTH_FILE))
             
             context.close()
             browser.close()
@@ -84,6 +86,7 @@ print(res.status_code)
 print("Starting report verification process at", time.ctime())
 start_time = time.time()
 
+os.makedirs("logs", exist_ok=True)
 nav_reports("/i70D61B7D0D5E4A3DB8A20CF9A60E6196/items")
 
 print("Finished at", time.ctime())

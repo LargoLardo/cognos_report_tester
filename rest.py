@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+NUM_WORKERS = 10
 
+count = 0
 passport = os.getenv("PASSPORT")
 caf = os.getenv("CAF")
 api_base = os.getenv("API_BASE")
@@ -75,12 +77,13 @@ def write_status_codes():
             print("\n", file=codes)
 
 def run(report_id: str, item):
-    global status_codes
+    global status_codes, count
     name = item['defaultName']
     type = item['type']
+    count = (count + 1) % NUM_WORKERS
     report_id = report_id.replace('/items', '')
     report_id = report_id.strip('/')
-    with open('run_logs', 'a', encoding='utf-8') as logs:
+    with open(f'logs/run_logs_{count}', 'a', encoding='utf-8') as logs:
         logs.write(f"{name} | {report_id}\n")
     # try:
     #     res = requests.get(
