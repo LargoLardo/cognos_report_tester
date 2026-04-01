@@ -85,6 +85,6 @@ print("Starting report verification process at", time.ctime())
 start_time = time.time()
 
 nav_reports("/i70D61B7D0D5E4A3DB8A20CF9A60E6196/items")
-# nav_reports("/i70D61B7D0D5E4A3DB8A20CF9A60E6196/items")
+
 print("Finished at", time.ctime())
 print(time.time() - start_time, "seconds elapsed")

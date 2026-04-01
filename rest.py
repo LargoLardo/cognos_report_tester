@@ -78,36 +78,36 @@ def run(report_id: str, item):
     global status_codes
     name = item['defaultName']
     type = item['type']
-    with open('run_logs', 'a', encoding='utf-8') as logs:
-        logs.write(f"{name}: ")
     report_id = report_id.replace('/items', '')
     report_id = report_id.strip('/')
-    try:
-        res = requests.get(
-            cms_base + f"/bi/v1/disp/rds/ReportData/storeID/{report_id}?fmt=Dataset",
-            cookies=cookies,
-            verify=False,
-            timeout=60
-        )
-        status_code = res.status_code
-    except requests.exceptions.ReadTimeout:
-        res = 'Timeout Exception'
-        status_code = 408
-    report = Report(type, report_id, status_code)
-    status_codes.setdefault(status_code, list()).append(report)
-    write_status_codes()
     with open('run_logs', 'a', encoding='utf-8') as logs:
-        logs.write(f"{status_code} ")
-        if status_code != 200 and status_code != 408:
-            try:
-                text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
-            except:
-                text = res.text
-            logs.write(f"({text})")
-        elif status_code == 408:
-            logs.write('(Timeout Exception)')
-        logs.write('\n')
-    return status_code
+        logs.write(f"{name} | {report_id}\n")
+    # try:
+    #     res = requests.get(
+    #         cms_base + f"/bi/v1/disp/rds/ReportData/storeID/{report_id}?fmt=Dataset",
+    #         cookies=cookies,
+    #         verify=False,
+    #         timeout=60
+    #     )
+    #     status_code = res.status_code
+    # except requests.exceptions.ReadTimeout:
+    #     res = 'Timeout Exception'
+    #     status_code = 408
+    # report = Report(type, report_id, status_code)
+    # status_codes.setdefault(status_code, list()).append(report)
+    # write_status_codes()
+    # with open('run_logs', 'a', encoding='utf-8') as logs:
+    #     logs.write(f"{status_code} ")
+    #     if status_code != 200 and status_code != 408:
+    #         try:
+    #             text = res.text.split('<rds:message>')[1].split('</rds:message>')[0]
+    #         except:
+    #             text = res.text
+    #         logs.write(f"({text})")
+    #     elif status_code == 408:
+    #         logs.write('(Timeout Exception)')
+    #     logs.write('\n')
+    # return status_code
 
 def action_by_type(new_extension: str, item):
     type = item['type']
