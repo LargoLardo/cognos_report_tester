@@ -1,2 +1,13 @@
+__pycache__
+
 .env
 cognos_auth_state.json
+
+status_codes
+run_logs
+
+sidelined
+manual
+logs
+
+report_checks.csv
