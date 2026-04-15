@@ -5,8 +5,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 import asyncio
-from playwright.async_api import async_playwright, expect
-from rest import status_codes
+from playwright.async_api import async_playwright
 import time
 
 load_dotenv(override=True)

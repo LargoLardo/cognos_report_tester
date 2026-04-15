@@ -1,0 +1,5 @@
+COGNOS_BASE = 'https://dev.bihub.health.gov.on.ca/cognosanalytics/bidacog-0000-ist/bi/?perspective=home'
+PASSPORT=''
+API_BASE = 'https://rest-bidacog-0000-ist.apps.ocp8.8lex.p1.openshiftapps.com:443/api/v1'
+CMS_BASE = 'https://rest-bidacog-0000-ist.apps.ocp8.8lex.p1.openshiftapps.com:443'
+CAF=''
