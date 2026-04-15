@@ -1,29 +1,32 @@
-# Cognos Report Tester
+HOW TO USE COGNOS_REPORT_TESTER TO PARSE AND CHECK VALIDITY OF COGNOS REPORTS
 
-The **Cognos Report Tester** is a utility for parsing, recording, and validating Cognos reports through scripted automation.
+1. If you don't have git, download and install git from the internet.
 
-This README explains how to install, configure, and use the tool correctly.
+2. Open VSCode (or an equivalent IDE) and open a new window. 
 
----
+3. Click "Open Folder..." and make a new folder/directory wherever you want the scripts to be stored. Select that folder.
 
-## Prerequisites
+4. Click the menu button in VSCode > View > Terminal
 
-Make sure the following are installed before starting:
+5. Enter into the terminal: git clone https://github.com/LargoLardo/cognos_report_tester.git
 
-- **Git**  
-  https://git-scm.com/
+6. You should now see all of the scripts and misc appear in your directory/sidebar. Now, we need to create a venv to store all our dependencies. To do so, enter: python -m venv venv
 
-- **Python** (version that supports `venv`)
-- **VS Code** (or another IDE)
+7. Activate the venv for Windows by entering: venv\Scripts\activate.bat
 
----
+8. To automatically install all dependencies, enter into the terminal: pip install requirements.txt
 
-## Installation
+9. In your directory/sidebar, create a new file called: .env
 
-### Clone the Repository
+10. It should be just ".env". Next, copy and paste the contents of example_env.txt in to the .env file. Press ctrl+s to save the file. If needed, change the urls and paths if working with and validating the reports of a different environment. By default, this file has the urls and paths for the dev environment.
 
-1. Open **VS Code**
-2. Open a new window
-3. Click **Open Folder…**
-4. Create and select a folder where the scripts will live
-5. Open the terminal:
+11. Now we can actually begin using the scripts for recording and validation. The order of usage should be create_auth_state.py > url_recorder.py > report_validator.py. rest_api.py is just a helper file.
+
+12. Enter into the terminal: python create_auth_state.py
+
+13. Log in using PKI or external log in methods
+
+14. Enter into the terminal: python url_recorder.py. Log in and wait until it finishes.
+
+15. Enter into the terminal: python report_validator.py. By default, the number of parallel workers is 10 to speed up the process, wait until it finishes.
+
